@@ -1,7 +1,14 @@
-http 200
-curl -sI http://www.example.org | grep "HTTP" | awk '{print $2}'
-md5summ
-curl -sI http://www.example.org | md5sum | awk '{print $1}'
-
-
-+
+mkdir -p /tmp/B11
+cp index.html /tmp/B11/
+[ "$(docker ps -a | grep B11)" ] && docker stop B11 && docker rm B11
+sudo docker run -d -p 9889:80 --name B11 --mount type=bind,src=/tmp/B11,dst=/usr/share/nginx/html/ nginx
+sudo docker ps -a
+curl -sI http://127.0.0.1:9889 | grep "HTTP" | awk '{print $2}'
+a=$(curl -sI http://127.0.0.1:9889 | grep "HTTP" | awk '{print $2}') b=200 ; if [[ "$a" == "$b" ]] ; then echo "вернулся код 200" ; else curl -s -X POST https://api.telegram.org/bot6181658501:AAElwqpQSejeKmdkN13ew3QXksExjnZYCzE/sendMessage -d chat_id=-1001954869079 -d text="return $a" && exit 2; fi
+curl -s http://127.0.0.1:9889 | md5sum | awk '{print $1}'
+a=$(curl -s http://127.0.0.1:9889 | md5sum | awk '{print $1}') b=3340e66e851a41b3a1f0dbc425db32cd ; if [[ "$a" == "$b" ]] ; then echo "сумма сошлась" ; else curl -s -X POST https://api.telegram.org/bot/sendMessage -d chat_id=-1001954869079 -d text="check summ error"&& exit 2; fi
+curl -s http://127.0.0.1:9889
+sudo docker stop B11
+sudo docker rm B11
+sudo docker ps -a
+curl -s -X POST https://api.telegram.org/bot/sendMessage -d chat_id=-1001954869079 -d text="build ok"
